@@ -6,7 +6,7 @@ from collections import namedtuple
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
+import os
 
 
 
@@ -237,58 +237,60 @@ def plot_attention_weights_over_episode(att_weights_episode, agent_names=None):
         plt.show()
         
 
-def plot_mean_rewards(episode_rewards):
+def plot_mean_rewards(episode_rewards, save_path="plots/mean_rewards.png"):
     """
-    Plots the mean reward per episode.
+    Plots the mean reward per episode and saves the plot as an image.
 
     Parameters:
-    - episode_rewards: list of lists, where each inner list contains rewards for one episode
+    - episode_rewards: list of mean rewards per episode
+    - save_path: path to save the plot image
     """
     if not episode_rewards:
         print("No rewards to plot.")
         return
 
-    
     episodes = list(range(1, len(episode_rewards) + 1)) 
 
     plt.figure(figsize=(10, 5))
-
-    plt.plot(episodes,episode_rewards, marker='o', linestyle='-', color='b', label='Mean Reward')
+    plt.plot(episodes, episode_rewards, marker='o', linestyle='-', color='b', label='Mean Reward')
     plt.xlabel('Episode')
     plt.ylabel('Mean Reward')
     plt.title('Mean Reward per Episode')
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    plt.show()
-
-
-def plot_attention_weights_over_episodes(attention_data, agent_idx=0, head_idx=0):
-    """
-    Plot average attention weight evolution across episodes for a given agent and head.
+    plt.savefig(save_path)
+    plt.close()
+    print(f"Saved mean rewards plot to {save_path}")
     
-    :param attention_data: List of episodes, each a list of attention weights per step.
-    :param agent_idx: Index of the agent.
-    :param head_idx: Index of the attention head.
+
+def plot_attention_weights_over_episodes(attention_data, agent_idx=0, head_idx=0, save_dir="plots"):
     """
+    Plots average attention weight evolution across episodes for a given agent and head,
+    and saves the plot as an image.
+
+    Parameters:
+    - attention_data: List of episodes, each a list of attention weights per step.
+    - agent_idx: Index of the agent.
+    - head_idx: Index of the attention head.
+    - save_dir: Directory where the plot will be saved.
+    """
+    os.makedirs(save_dir, exist_ok=True)
     avg_weights_per_episode = []
 
     for ep in attention_data:
-        # ep = list of steps
         weights_steps = []
-        for step_weights in ep:  # one per timestep
-            # shape: [B, H, N-1] => usually [1, H, N-1]
-            attn = step_weights[agent_idx]  # [1, H, N-1]
+        for step_weights in ep:
+            attn = step_weights[agent_idx]
             if isinstance(attn, th.Tensor):
                 attn = attn.detach().cpu().numpy()
-            weights_steps.append(attn[0, head_idx])  # extract one head, one batch
-
-        # Average across timesteps
-        avg_weights = np.mean(weights_steps, axis=0)  # shape: [N-1]
+            weights_steps.append(attn[0, head_idx])
+        avg_weights = np.mean(weights_steps, axis=0)
         avg_weights_per_episode.append(avg_weights)
 
-    avg_weights_per_episode = np.array(avg_weights_per_episode)  # [E, N-1]
+    avg_weights_per_episode = np.array(avg_weights_per_episode)
 
+    plt.figure(figsize=(10, 5))
     for j in range(avg_weights_per_episode.shape[1]):
         plt.plot(avg_weights_per_episode[:, j], label=f'Attention to Agent {j if j < agent_idx else j+1}')
     
@@ -298,4 +300,9 @@ def plot_attention_weights_over_episodes(attention_data, agent_idx=0, head_idx=0
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.show()
+
+    filename = f"attention_evolution_agent{agent_idx}_head{head_idx}.png"
+    save_path = os.path.join(save_dir, filename)
+    plt.savefig(save_path)
+    plt.close()
+    print(f"Saved attention plot to {save_path}")

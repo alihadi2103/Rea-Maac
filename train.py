@@ -36,53 +36,50 @@ alg_config_dict = {
     "hid_activation": "relu",
     "norm_input": True,
     "norm_in":False,
-    "save_model_freq":2,
-    "train_episodes_num":2
-    ,
-    "max_steps": 30,
+    "save_model_freq":100,
+    "train_episodes_num":2000,
+    "max_steps": 1000,
     "agent_type": "rnn",
     "shared_params":False,
     "target_lr":0.001,
-    "behaviour_update_freq":10,
-    "policy_update_epochs": 4,
-    "value_update_epochs": 5,
-    "batch_size":12,
-    "replay_warmup":10,
+    "behaviour_update_freq":50,
+    "policy_update_epochs":500,
+    "value_update_epochs": 500,
+    "batch_size":600,
+    "replay_warmup":200,
     "init_type" :"normal",
     "agent_id": False,
     "attend_heads": 2,
     "init_std": 0.1,
-    "replay_buffer_size": 15,
+    "replay_buffer_size": 15000,
     "value_lrate": 1e-4,
     "entr":False,
     "reward_normalisation":False,
     "gamma": 0.99,
     "setpoint_change_freq": 1000,
-    "target_update_freq":4,
+    "target_update_freq":100,
     "gaussian_policy": False,
     "grad_clip_eps": 0.5,
-        
-
 }
 
 # define envs
 
 env_config_dict=dict(
-    A=1.0,
-    rho_a=1.0,
-    rho_b=1.0,
-    rho_w=1.0,
-    r=1.0,
-    ko=1.0,
-    E=1.0,
-    R=1.0,
-    cp_w=1.0,
-    cp_a=1.0,
-    cp_b=1.0,
+    A=2.0,
+    rho_a=1050.0,
+    rho_b=789.0,
+    rho_w= 1000.0,
+    r=0.894     ,
+    ko=1000.0,
+    E=45380.0,
+    R=8.3140,
+    cp_w=4178.1909  ,
+    cp_a=2069.9417 ,
+    cp_b=2419.3618 ,
     dHr=1.0,
-    Tref=1.0,
-    Cai=1.0,
-    Cbi=1.0,
+    Tref=298.15,
+    Cai=1000.0,
+    Cbi=1000.0,
     h_sp=3.0,
     Ca_sp=1.0,
     Cb_sp=1.0,
@@ -92,10 +89,9 @@ env_config_dict=dict(
     h_max=4.0,
     T_min=298.0,
     T_max=450.0,
-    dt=1.0,
-    max_steps=30,
-    initial_state=[1.0, 1.0, 1.0, 1.0, 1.0],
-
+    dt=0.2,
+    max_steps=1000,
+    initial_state=[1.0, 0.0, 0.0, 0.0,298.15],  # [h, Ca, Cb, Cc, T]
 )
 
 nmpc_env=env_config_dict
@@ -193,4 +189,7 @@ for i in range(args.train_episodes_num):
 print ("the epesoide mean rewards ",mean_reawads)
 plot_mean_rewards(mean_reawads )
 plot_attention_weights_over_episodes(all_episode_attention_weights, agent_idx=0, head_idx=0)
+plot_attention_weights_over_episodes(all_episode_attention_weights, agent_idx=1, head_idx=0)
+plot_attention_weights_over_episodes(all_episode_attention_weights, agent_idx=2, head_idx=0)
+plot_attention_weights_over_episodes(all_episode_attention_weights, agent_idx=3, head_idx=0)
 logger.close()
