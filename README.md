@@ -160,13 +160,6 @@ tensorboard --logdir ./tensorboard/
 * Hybrid model-based and model-free reinforcement learning integration
 
 ---
-
-## License
-
-[MIT License](LICENSE)
-
----
-
 ## Author
 
 Ali Hadi — [GitHub](https://github.com/alihadi2103)
